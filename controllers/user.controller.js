@@ -1,4 +1,4 @@
-import { createUser, fetchUser } from '../models/user.model.js';
+import { createUser, fetchUser, updateUser } from '../models/user.model.js';
 import bcrypt from 'bcrypt';
 import commonResponse from '../common/index.js';
 const signupUser = (req, res) => {
@@ -24,5 +24,27 @@ const getUser = (req, res) => {
         });
     });
 };
-
-export { signupUser, getUser };
+const editUser = (req, res) => {
+    updateUser(req.connection, req.body, req.body.email, (err, users) => {
+        commonResponse({
+            res,
+            success: !users.affectedRows > 0 ? false : true,
+            message:
+                !users.affectedRows > 0 ? 'user not found' : 'user updated',
+            data: null,
+        });
+    });
+};
+const deleteUser = (req, res) => {
+    let user = { ...req.body, activestatus: 0 };
+    updateUser(req.connection, user, req.body.email, (err, users) => {
+        commonResponse({
+            res,
+            success: !users.affectedRows > 0 ? false : true,
+            message:
+                !users.affectedRows > 0 ? 'user not found' : 'user deleted',
+            data: null,
+        });
+    });
+};
+export { signupUser, deleteUser, getUser, editUser };
