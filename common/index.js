@@ -3,8 +3,11 @@ const commonResponse = ({
     success = false,
     message = ' ',
     data = null,
+    token,
 }) => {
-    res.send({ success, message, data });
+    success
+        ? res.send({ success, message, data, token })
+        : res.send({ success, message, data });
 };
 
 export default commonResponse;

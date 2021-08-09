@@ -9,7 +9,7 @@ const config = {
 const connection = mysql.createConnection(config);
 connection.connect((error) => {
     !error
-        ? console.log('Dabase Connected')
+        ? console.log('Database Connected')
         : console.log('Database not Connected');
 });
 

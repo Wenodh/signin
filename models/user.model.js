@@ -11,8 +11,19 @@ const updateUser = (connection, data, email, callback) => {
     query = 'UPDATE users SET ? WHERE email=?';
     connection.query(query, [data, email], callback);
 };
-// const deleteUser = (connection, data, email, callback) => {
-//     query = 'UPDATE users SET ? WHERE email=?';
-//     connection.query(query, [data, email], callback);
-// };
-export { createUser, fetchUser, updateUser };
+const deleteUserAccount = (connection, email, callback) => {
+    query = 'DELETE FROM users WHERE email=?';
+    connection.query(query, [email], callback);
+};
+const fetchUserWithPassword = (connection, email, callback) => {
+    query = 'SELECT * FROM users WHERE email=?';
+    connection.query(query, [email], callback);
+};
+
+export {
+    createUser,
+    fetchUser,
+    updateUser,
+    deleteUserAccount,
+    fetchUserWithPassword,
+};

@@ -1,6 +1,16 @@
-import { createUser, fetchUser, updateUser } from '../models/user.model.js';
+import {
+    createUser,
+    fetchUser,
+    updateUser,
+    deleteUserAccount,
+    fetchUserWithPassword,
+} from '../models/user.model.js';
 import bcrypt from 'bcrypt';
 import commonResponse from '../common/index.js';
+import jwt from 'jsonwebtoken';
+import dotenv from 'dotenv';
+
+dotenv.config();
 const signupUser = (req, res) => {
     bcrypt.hash(req.body.password, 12).then((hash) => {
         let user = { ...req.body, password: hash };
@@ -47,4 +57,59 @@ const deleteUser = (req, res) => {
         });
     });
 };
-export { signupUser, deleteUser, getUser, editUser };
+const hardDeleteUser = (req, res) => {
+    deleteUserAccount(req.connection, req.body.email, (err, users) => {
+        commonResponse({
+            res,
+            success: !users.affectedRows > 0 ? false : true,
+            message:
+                !users.affectedRows > 0 > 0
+                    ? 'user not found'
+                    : 'user permanently deleted',
+            data: users,
+        });
+    });
+};
+const signInUser = (req, res) => {
+    fetchUserWithPassword(req.connection, req.body.email, (err, user) => {
+        user.length > 0
+            ? bcrypt
+                  .compare(req.body.password, user[0].password)
+                  .then((result) => {
+                      if (result) {
+                          const token = jwt.sign(
+                              { ...user[0] },
+                              process.env.SECRET_KEY,
+                              { expiresIn: 60 }
+                          );
+                          commonResponse({
+                              res,
+                              success: true,
+                              message: 'User logged in',
+                              data: null,
+                              token,
+                          });
+                      } else {
+                          commonResponse({
+                              res,
+                              success: false,
+                              message: 'password wrong',
+                              data: null,
+                          });
+                      }
+                  })
+            : commonResponse({
+                  success: false,
+                  message: 'email wrong',
+                  data: null,
+              });
+    });
+};
+export {
+    signupUser,
+    deleteUser,
+    getUser,
+    editUser,
+    hardDeleteUser,
+    signInUser,
+};
